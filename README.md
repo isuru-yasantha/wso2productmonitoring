@@ -11,7 +11,7 @@ startDelaySeconds: 30\
 ssl: false\
 lowercaseOutputName: true\
 username: [wso2-admin-username]\
-password: [wso2-admin-user-password]\
+password: [wso2-admin-user-password]
 
 You need to copy these files to wso2 product container when you build the product image.
 
