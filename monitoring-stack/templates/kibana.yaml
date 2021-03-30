@@ -66,7 +66,7 @@ spec:
   tls:
   - hosts:
     - {{ .Values.kibana.ingressdomain }}
-    secretName: wc-tst-med-eu
+    secretName: cert
   rules:
   - host: {{ .Values.kibana.ingressdomain }}
     http:
