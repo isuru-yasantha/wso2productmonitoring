@@ -1,5 +1,5 @@
 # wso2productmonitoring
-This repo contains monitoring and logging implementation stacks, helm chart for WSO2 products. This is a sample of kubernetes pod definiton for WSO2 IS server and it showcases how to configure fluent bit and prometheus java agent to collect logs and expose the metrics. You can follow the sample configuration for wso2 is and implement the same in any of wso2 product. You need to add below configuration to wso2server.sh in order to expose the metrics. 
+This repo contains monitoring and logging implementation stacks, helm chart for WSO2 products. This is a sample helm chart for kubernetes pod definiton of WSO2 IS server and it showcases how to configure fluent bit and prometheus java agent to collect logs and expose the metrics. You can follow the sample configuration for wso2 is and implement the same in any of wso2 product. You need to add below configuration to wso2server.sh in order to expose the metrics. 
 
     -javaagent:/home/wso2carbon/prometheus/jmx_prometheus_javaagent-0.12.0.jar=1234:/home/wso2carbon/prometheus/prometheus-jmx-config.yaml 
     
