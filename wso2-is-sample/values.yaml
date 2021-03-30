@@ -1,0 +1,15 @@
+wso2:
+    fluentbit:
+      # If a custom image must be used, uncomment 'dockerRegistry' and provide its value.
+      imageName: "fluent/fluent-bit:1.3.11"
+      esendpoint: "elasticsearch.monitoring.svc.cluster.local"
+      elasticUser: elastic
+      elasticPassword: xxxxxx
+      resources:
+        requests:
+          memory: "50Mi"
+          cpu: "100m"
+        limits:
+          memory: "50Mi"
+          cpu: "100m"
+

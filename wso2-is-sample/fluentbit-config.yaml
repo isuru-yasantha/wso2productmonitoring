@@ -1,0 +1,111 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: fluent-bit-config
+  namespace: {{ .Values.kubernetes.namespace }}
+data:
+  # Configuration files: server, input, filters and output
+  # ======================================================
+  fluent-bit.conf: |
+    [SERVICE]
+        Flush         1
+        Log_Level     debug
+        storage.path              /var/log/flb-storage/
+        storage.sync              normal
+        storage.checksum          off
+        storage.backlog.mem_limit 5M
+        Daemon        off
+        HTTP_Server   On
+        HTTP_Listen   0.0.0.0
+        HTTP_Port     2020
+        Parsers_File  parsers.conf
+
+
+    @INCLUDE input-wso2logs.conf
+    @INCLUDE filter-wso2logs.conf
+    @INCLUDE output-wso2logs.conf
+
+  input-wso2logs.conf: |
+    [INPUT]
+        Name              tail
+        Tag               wso2_carbonlogs
+        Path              /logs/wso2carbon.log
+        DB                /var/log/flb_wso2carbon.db
+        Parser            wso2carbon
+        Mem_Buf_Limit     100MB
+        Refresh_Interval  10
+        Multiline On
+        Parser_Firstline multiline_pattern
+
+    [INPUT]
+        Name              tail
+        Tag               wso2_httplogs
+        Path              /logs/http_access_*.log
+        DB                /var/log/flb_wso2http.db
+        Parser            wso2https
+        Mem_Buf_Limit     5MB
+        Refresh_Interval  10
+
+    [INPUT]
+        Name              tail
+        Tag               wso2_auditlogs
+        Path              /logs/audit.log
+        DB                /var/log/flb_wso2audit.db
+        Parser            wso2carbon
+        Mem_Buf_Limit     50MB
+        Refresh_Interval  10
+        Multiline On
+        Parser_Firstline multiline_pattern
+
+  filter-wso2logs.conf: |
+    [FILTER]
+        Name                modify
+        Match               wso2_carbonlogs*
+        Add                 logtype wso2carbon
+        Add                 pod ${HOSTNAME}
+
+    [FILTER]
+        Name                modify
+        Match               wso2_auditlogs*
+        Add                 logtype auditlogs
+        Add                 pod ${HOSTNAME}
+
+
+    [FILTER]
+        Name                modify
+        Match               wso2_httplogs*
+        Add                 logtype httpaccess
+        Add                 pod ${HOSTNAME}
+
+
+  output-wso2logs.conf: |
+    [OUTPUT]
+        Name            es
+        Match           wso2_*
+        Host            ${FLUENT_ELASTICSEARCH_HOST}
+        Port            ${FLUENT_ELASTICSEARCH_PORT}
+        HTTP_User       ${FLUENT_ELASTICSEARCH_USER}
+        HTTP_Passwd     ${FLUENT_ELASTICSEARCH_PASSWD}
+        Logstash_Format On
+        Replace_Dots    On
+        Retry_Limit     False
+
+  parsers.conf: |
+    [PARSER]
+        Name multiline_pattern
+        Format regex
+        Regex ^([TID:]+)
+
+    [PARSER]
+        Name        wso2carbon
+        Format      regex
+        Regex       ^([TID:]+ [^ ]+ [^ ]+ \[(?<time>[^\]]+)\])  (?<loglevel>\w[A-Z]*) (?<message>.*)
+        Time_Key    time
+        Time_Format %Y-%m-%d %H:%M:%S
+
+    [PARSER]
+        Name        wso2https
+        Format      regex
+        Regex       ^(\S+) (\S+) (\S+) \[([\w:/]+\s[+\-]\d{4})\] "(\S+)\s?(\S+)?\s?(\S+)?" (\d{3}|-) (\d+|-)\s?"?([^"]*)"?\s?"?([^"]*)?"?$
+        Time_Key    time
+        Time_Format %Y-%m-%d %H:%M:%S

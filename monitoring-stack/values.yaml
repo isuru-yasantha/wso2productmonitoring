@@ -1,0 +1,63 @@
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+
+#serviceaccount
+namespace: monitoring
+clusterRoleName: prometheus-role
+serviceAccountName: monitoring
+storageclass: nfs-client
+
+commonLabels: 
+  environment: devtest
+
+influxdb:
+  image: influxdb:1.8.4
+  resources:
+   request_cpu: 750m
+   request_memory: 2Gi
+   limit_cpu: 750m
+   limit_memory: 2Gi
+
+prometheus:
+  serverimage: prom/prometheus
+  blackboximage: prom/blackbox-exporter
+  resources:
+   server_request_cpu: 750m
+   server_request_memory: 1Gi
+   server_limit_cpu: 750m
+   server_limit_memory: 1Gi
+   exporter_request_cpu: 100m
+   exporter_request_memory: 300Mi
+   exporter_limit_cpu: 100m
+   exporter_limit_memory: 300Mi
+
+grafana:
+  image: grafana/grafana:7.1.5
+  ingressdomain: "grafana.x.com"
+  resources:
+   request_cpu: 500m
+   request_memory: 2Gi
+   limit_cpu: 1000m
+   limit_memory: 2Gi
+  replicas: 1
+
+elasticsearch:
+  image: docker.elastic.co/elasticsearch/elasticsearch:7.2.0
+  resources:
+   request_cpu: 500m
+   request_memory: 2Gi
+   limit_cpu: 1000m
+   limit_memory: 2Gi
+  replicas: 1
+
+kibana:
+  image: docker.elastic.co/kibana/kibana:7.2.0
+  ingressdomain: "kibana.x.com"
+  username: elastic
+  password: xxxxxx
+  resources:
+   request_cpu: 500m
+   request_memory: 2Gi
+   limit_cpu: 1000m
+   limit_memory: 2Gi
+  replicas: 1

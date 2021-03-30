@@ -1,0 +1,26 @@
+apiVersion: 1
+datasources:
+- name: "prometheusinfluxdb"
+  type: "influxdb"
+  access: "proxy"
+  orgId: 1
+  uid: ""
+  url: "http://influxdb-service:8086"
+  password: "xxxxxx"
+  user: "admin"
+  database: "prometheus"
+  basicAuth:
+  basicAuthUser:
+  basicAuthPassword:
+  withCredentials:
+  isDefault:
+  jsonData:
+     httpMode: "GET"
+  secureJsonData:
+    tlsCACert: ""
+    tlsClientCert: ""
+    tlsClientKey: ""
+    password: ""
+    basicAuthPassword: ""
+  version: 1
+

@@ -1,0 +1,75 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: wso2is-deployment
+  namespace :
+spec:
+  replicas:
+  minReadySeconds:
+  strategy:
+    rollingUpdate:
+      maxSurge:
+      maxUnavailable: 
+    type: RollingUpdate
+  selector:
+    matchLabels:
+      deployment: wso2is
+      app: wso2is
+      monitoring: "jmx"
+  template:
+    metadata:
+      labels:
+        deployment: wso2is
+        app: wso2is
+        monitoring: jmx
+      annotations:
+        prometheus.io/scrape: 'true'
+        prometheus.io/port: '1234'
+    spec:
+      containers:
+
+        ---
+        ---
+        ---
+
+        volumeMounts:
+        - name: is-logs
+          mountPath: /home/wso2carbon/wso2is-5.10.0/repository/logs
+      
+      - name: fluent-bit-agent
+        image: {{ .Values.wso2.deployment.fluentbit.imageName }}
+        imagePullPolicy: IfNotPresent
+        resources:
+          requests:
+            memory: {{ .Values.wso2.deployment.fluentbit.resources.requests.memory }}
+            cpu: {{ .Values.wso2.deployment.fluentbit.resources.requests.cpu }}
+          limits:
+            memory: {{ .Values.wso2.deployment.fluentbit.resources.limits.memory }}
+            cpu: {{ .Values.wso2.deployment.fluentbit.resources.limits.cpu }}
+        ports:
+          - containerPort: 2020
+        env:
+        - name: FLUENT_ELASTICSEARCH_HOST
+          value: {{ .Values.wso2.deployment.fluentbit.esendpoint }} 
+        - name: FLUENT_ELASTICSEARCH_PORT
+          value: "9200"
+        - name: FLUENT_ELASTICSEARCH_USER
+          value: {{ .Values.wso2.deployment.fluentbit.elasticUser }} 
+        - name: FLUENT_ELASTICSEARCH_PASSWD
+          value: {{ .Values.wso2.deployment.fluentbit.elasticPassword }} 
+        volumeMounts:
+        - name: is-logs
+          mountPath: /logs
+        - name: external-fluent-bit-config
+          mountPath: /fluent-bit/etc/
+      ---
+      ---
+      ---
+
+      volumes:
+      - name: is-logs
+        emptyDir: {}
+      - name: fluent-bit-config
+        configMap:
+          name: fluent-bit-config
+    

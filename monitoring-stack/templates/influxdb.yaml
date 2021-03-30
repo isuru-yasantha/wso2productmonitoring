@@ -1,0 +1,94 @@
+apiVersion: v1
+kind: Secret
+metadata:
+  name: influxdbsecret
+  namespace: {{ .Values.namespace }}
+type: Opaque
+data:
+  INFLUXDB_DB: cHJvbWV0aGV1cw==
+  INFLUXDB_ADMIN_USER: YWRtaW4=
+  INFLUXDB_ADMIN_PASSWORD: eHh4eHh4
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: influxdb-volume-claim
+  namespace : {{ .Values.namespace }}
+spec:
+  accessModes:
+  - ReadWriteMany
+  resources:
+    requests:
+      storage: 60Gi
+  storageClassName: {{ .Values.storageclass }}
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: influxdb-deployment
+  namespace: {{ .Values.namespace }}
+  labels:
+   environment: {{ .Values.commonLabels.environment }}
+   component: influxdb
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      component: influxdb
+  template:
+    metadata:
+      name: influxdb
+      labels:
+        environment: {{ .Values.commonLabels.environment }}
+        component: influxdb
+    spec:
+      containers:
+      - name: influxdb-container
+        image: influxdb:1.8.4
+        imagePullPolicy: IfNotPresent
+        env:
+        - name: INFLUXDB_DB
+          valueFrom:
+           secretKeyRef:
+            name: influxdbsecret  
+            key: INFLUXDB_DB
+        - name: INFLUXDB_ADMIN_USER
+          valueFrom:
+           secretKeyRef:
+            name: influxdbsecret
+            key: INFLUXDB_ADMIN_USER
+        - name: INFLUXDB_ADMIN_USER
+          valueFrom:
+           secretKeyRef:
+            name: influxdbsecret
+            key: INFLUXDB_ADMIN_PASSWORD
+        ports:
+        - containerPort: 8086
+        resources:
+          limits:
+            memory: {{ .Values.influxdb.resources.limit_memory }}
+            cpu: {{ .Values.influxdb.resources.limit_cpu }}
+          requests:
+            memory: {{ .Values.influxdb.resources.request_memory }}
+            cpu: {{ .Values.influxdb.resources.request_cpu }}
+        volumeMounts:
+        - name: datadisk
+          mountPath: /var/lib/influxdb
+      volumes:
+      - name: datadisk
+        persistentVolumeClaim:
+          claimName: influxdb-volume-claim
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: influxdb-service
+  namespace: {{ .Values.namespace }}
+  labels:
+    component: influxdb
+spec:
+  selector:
+    component: influxdb
+  type: ClusterIP
+  ports:
+  - port: 8086
