@@ -5,7 +5,7 @@ This repo contains monitoring and logging implementation stacks, helm chart for 
     
  Jar file can be downloaded at https://repo1.maven.org/maven2/io/prometheus/jmx/jmx_prometheus_javaagent/0.12.0/jmx_prometheus_javaagent-0.12.0.jar and configuration file as below,   
      
- prometheus-jmx-config.yaml\  
+ prometheus-jmx-config.yaml  
 ---\
 startDelaySeconds: 30\
 ssl: false\
