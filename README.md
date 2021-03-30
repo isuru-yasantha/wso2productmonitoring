@@ -7,11 +7,11 @@ This repo contains monitoring and logging implementation stacks, helm chart for 
      
  prometheus-jmx-config.yaml  
 ---
-startDelaySeconds: 30
-ssl: false
-lowercaseOutputName: true
-username: [wso2-admin-username]
-password: [wso2-admin-user-password]
+startDelaySeconds: 30\
+ssl: false\
+lowercaseOutputName: true\
+username: [wso2-admin-username]\
+password: [wso2-admin-user-password]\
 
 You need to copy these files to wso2 product container when you build the product image.
 
