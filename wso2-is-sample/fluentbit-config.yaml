@@ -52,7 +52,7 @@ data:
         Path              /logs/audit.log
         DB                /var/log/flb_wso2audit.db
         Parser            wso2carbon
-        Mem_Buf_Limit     50MB
+        Mem_Buf_Limit     100MB
         Refresh_Interval  10
         Multiline On
         Parser_Firstline multiline_pattern
